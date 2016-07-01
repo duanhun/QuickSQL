@@ -75,36 +75,7 @@ class JsonListField(object):
 
 
 
-class SqlCreator(object):
 
-    __index = 0
-
-    __where_text = ""
-    __field_text = ""
-    __reverse_text = ""
-    __order_by = ""
-
-
-    @QDB.execute_sql
-    def where(self, **kwargs):
-        self.__where_text = " and ".join([k + "="+ str(v) for k,v in kwargs.items()])
-        print self.__index
-        return self
-
-    def field(self, *args):
-        self.__field_text = ','.join(args) if args else ""
-        return self
-
-    def reverse(self, isReverse):
-        self.__reverse_text = 'DESC' if isReverse else "ASC"
-        return self
-
-    def order_by(self,*args):
-        self.__order_by = "order by" + ",".join(args) if args else ""
-        return self
-
-    def execute_sql(self, db):
-        pass
 
 
 
@@ -114,35 +85,86 @@ class Model(object):
     _db = None
     _result = None
 
-    objects = SqlCreator()
+    __index = 0
+
+    __sql = ""
+    __option = ""
+    __where_text = ""
+    __field_text = ""
+    __reverse_text = ""
+    __order_by = ""
+
     def __new__(cls):
         return super(Model, cls).__new__(cls, cls.__name__, (object,), cls._attr_dict)
 
-    def __init__(self, *args, **kwargs): # 用于创建
-        self._table = self.__getattribute__(''.join(["_",self.__class__.__name__, "__db_table"]))
-        self._connect = QDB.connector
-        self._db = self._connect.cursor()
+    @classmethod
+    def __getattribute__(self, item):
+        if item in dir(self):
+            return getattr(self,item)
+        else:
+            return None
+
+    def __init__(self, *args, **kwargs): # 用于创建某个实例
         # self._objects = SqlCreator()
         super(Model, self).__init__(self, *args, **kwargs)
 
-
+    @classmethod
     def close(self):
         if self._db:
             self._db.close()
         if self._connect:
             self._connect.close()
 
-    def get(self, **kwargs):
-        _where = (''.join([k + "="+ str(v)+" and " for k,v in kwargs.items()]))[:-4] # 去掉最后一个and
-        _sql = "select * from %s where " % (self._table,) +  _where
-        self._db.execute(_sql)
-        self._result = self._db.fetchone()
-        self.close()
-        return self
+    @classmethod
+    def get(cls, **kwargs):
+        cls.__option = "select"
+        return cls.filter(**kwargs)
 
-    def __getattribute__(self, item):
-        if item in dir(self):
-            print self.get('item')
+    @classmethod
+    def update(cls, **kwargs):
+        cls.__option = "update"
+        return cls.filter(**kwargs)
+
+    @classmethod
+    def filter(cls, **kwargs):
+        cls.__where_text += " and ".join([k + "="+ str(v) for k,v in kwargs.items()])
+        return cls
+
+    @classmethod
+    def field(cls, *args):
+        cls.__field_text += ','.join(args) if args else ""
+        return cls
+
+    @classmethod
+    def reverse(cls, isReverse):
+        cls.__reverse_text += 'DESC' if isReverse else "ASC"
+        return cls
+
+    @classmethod
+    def order_by(cls,*args):
+        cls.__order_by = ("order by" + ",".join(args)) if args else ""
+        return cls
+
+
+
+    @classmethod
+    def results(cls):
+        cls._connect = QDB.connector
+        cls._db = cls._connect.cursor()
+        cls.__sql = ""
+        cls._table = cls.__getattribute__(''.join(["_", cls.__name__, "__db_table"]))
+        if cls.__option == "select":
+            cls.__sql = cls.__option + " " + (cls.__field_text if cls.__field_text else "*") + \
+                        " from "+ str(cls._table) + " where " + cls.__where_text + " " + cls.__order_by + cls.__reverse_text
+
+
+        result = cls._db.execute(cls.__sql)
+        print cls.__sql
+        print cls._db.fetchone()
+        cls.close()
+
+        cls.__sql = ""
+
 
 
 

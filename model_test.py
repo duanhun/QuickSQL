@@ -33,5 +33,4 @@ def tt1(a):
 
 
 if __name__ == "__main__":
-    uM = UserModel.objects.where(id=1)
-    u = uM.where(id=1)
+    uM = UserModel.get(id=1).results()
