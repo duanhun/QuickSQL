@@ -43,9 +43,4 @@ class Connector(object):
 
         return wrapper
 
-
-
-
-
-
 QDB = Connector("localhost", "root", "123456", "youaiwang", 3306)

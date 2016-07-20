@@ -91,6 +91,7 @@ class Model(object):
     __option = ""
     __where_text = ""
     __field_text = ""
+    __fields = []
     __reverse_text = ""
     __order_by = ""
 
@@ -132,6 +133,7 @@ class Model(object):
 
     @classmethod
     def field(cls, *args):
+        cls.__fields = args
         cls.__field_text += ','.join(args) if args else ""
         return cls
 
@@ -159,11 +161,15 @@ class Model(object):
 
 
         result = cls._db.execute(cls.__sql)
+        model = cls._db.fetchone()
         print cls.__sql
-        print cls._db.fetchone()
+        cls.__model = {}
+        for field, data in zip(cls.__fields, model):
+            setattr(cls, field, data)
         cls.close()
 
         cls.__sql = ""
+        return cls
 
 
 
