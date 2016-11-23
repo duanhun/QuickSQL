@@ -19,6 +19,6 @@ class UserModel(Model):
 
 
 if __name__ == "__main__":
-    uM = UserModel.field('id', 'nickName', 'sex').filter(id=7).results()[0]
+    uM = UserModel.field('id', 'nickName', 'sex').filter(id=5).results()
     print uM.id, uM.nickName, uM.sex
 
