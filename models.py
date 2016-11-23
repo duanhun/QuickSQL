@@ -4,6 +4,7 @@ __author__ = 'Jeffrey'
 import traceback
 import json
 
+
 from DBManager import QDB
 from utils import logging
 
@@ -106,8 +107,6 @@ class Model(object):
             return None
 
     def __init__(self, *args, **kwargs): # 用于创建某个实例
-        # self._objects = SqlCreator()
-        print "args"
         for a in args:
             print a
         super(Model, self).__init__(self, *args, **kwargs)
@@ -131,6 +130,7 @@ class Model(object):
 
     @classmethod
     def filter(cls, **kwargs):
+        cls.__option = "select"
         cls.__where_text += " and ".join([k + "="+ str(v) for k,v in kwargs.items()])
         return cls
 
@@ -161,18 +161,19 @@ class Model(object):
         if cls.__option == "select":
             cls.__sql = cls.__option + " " + (cls.__field_text if cls.__field_text else "*") + \
                         " from "+ str(cls._table) + " where " + cls.__where_text + " " + cls.__order_by + cls.__reverse_text
+            cls._db.execute(cls.__sql)
+            models = cls._db.fetchall()
+            print cls.__sql
+            cls.__models = []
+            for model in models:
+                temp_model = Model()
+                for field, data in model.iteritems():
+                    setattr(temp_model, field, data)
+                cls.__models.append(temp_model)
+            cls.close()
 
-
-        result = cls._db.execute(cls.__sql)
-        model = cls._db.fetchone()
-        print cls.__sql
-        cls.__model = {}
-        for field, data in zip(cls.__fields, model):
-            setattr(cls, field, data)
-        cls.close()
-
-        cls.__sql = ""
-        return cls
+            cls.__sql = ""
+            return cls.__models
 
 
 

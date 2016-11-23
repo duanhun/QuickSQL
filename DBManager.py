@@ -2,6 +2,7 @@
 __author__ = 'Jeffrey'
 
 import MySQLdb
+from MySQLdb.cursors import DictCursor
 
 from utils import error_catch, logging
 
@@ -17,7 +18,14 @@ class Connector(object):
         self._dbName = dbName
         self._port = port
         self._charset = charset
-        self._connector = MySQLdb.connect(host=self._host, user=self._user, passwd=self._pwd, db=self._dbName, port=self._port, charset=self._charset)
+        self._connector = MySQLdb.connect(host=self._host,
+                                          user=self._user,
+                                          passwd=self._pwd,
+                                          db=self._dbName,
+                                          port=self._port,
+                                          charset=self._charset,
+                                          cursorclass=DictCursor,
+                                          )
 
     @property
     def connector(self):

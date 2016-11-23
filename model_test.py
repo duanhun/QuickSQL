@@ -3,12 +3,14 @@ __author__ = 'Jeffrey'
 
 
 from DBManager import QDB
-from models import Model, IntegerField, JsonDictField
+from models import Model, IntegerField, JsonDictField,StringField
 
 
 class UserModel(Model):
     __db_table = "user"
 
+    sex = StringField(default="no", max_length=10)
+    nickName = StringField(default="no", max_length=10)
     pk = IntegerField(default=45)
     data = JsonDictField(default={1:2})
 
@@ -17,6 +19,6 @@ class UserModel(Model):
 
 
 if __name__ == "__main__":
-    uM = UserModel.field('id', 'nickname').get(id=1).results()
-    print uM.id
+    uM = UserModel.field('id', 'nickName', 'sex').filter(id=7).results()[0]
+    print uM.id, uM.nickName, uM.sex
 
