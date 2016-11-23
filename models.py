@@ -107,6 +107,9 @@ class Model(object):
 
     def __init__(self, *args, **kwargs): # 用于创建某个实例
         # self._objects = SqlCreator()
+        print "args"
+        for a in args:
+            print a
         super(Model, self).__init__(self, *args, **kwargs)
 
     @classmethod

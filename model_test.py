@@ -12,7 +12,11 @@ class UserModel(Model):
     pk = IntegerField(default=45)
     data = JsonDictField(default={1:2})
 
+    def __init__(self):
+        super(UserModel, self).__init__(self)
+
 
 if __name__ == "__main__":
     uM = UserModel.field('id', 'nickname').get(id=1).results()
-    print(uM.id)
+    print uM.id
+
