@@ -118,10 +118,16 @@ class Model(object):
         if self._connect:
             self._connect.close()
 
+    # @classmethod
+    # def get(cls, **kwargs):
+    #     cls.__option = "select"
+    #     return cls.filter(**kwargs)
+
     @classmethod
     def get(cls, **kwargs):
-        cls.__option = "select"
-        return cls.filter(**kwargs)
+        # cls.__option = "select"
+        # return cls.filter(**kwargs)
+        return cls.__getattribute__("")
 
     @classmethod
     def update(cls, **kwargs):
@@ -166,8 +172,9 @@ class Model(object):
             print cls.__sql
             cls.__models = []
             for model in models:
-                temp_model = Model()
-                for field, data in model.iteritems():
+                temp_model = cls
+
+                for field, data in model.items():
                     setattr(temp_model, field, data)
                 cls.__models.append(temp_model)
             cls.close()
